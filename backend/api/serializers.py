@@ -17,7 +17,15 @@ from users.models import Follow
 User = get_user_model()
 
 
-class UserCreateSerializerCustom(UserCreateSerializer):
+class GetSubscribedMixIn:
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous or (user == obj):
+            return False
+        return user.follower.filter(author=obj.id).exists()
+
+
+class UserCreateCustomSerializer(UserCreateSerializer):
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
@@ -37,3 +45,25 @@ class UserCreateSerializerCustom(UserCreateSerializer):
             'last_name',
             'password',
         )
+
+
+class UserListSerializer(GetSubscribedMixIn, UserSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+        )
+        read_only_fields = ('is_subscribed',)
+
+
+class TagsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tags
+        fields = '__all__'
