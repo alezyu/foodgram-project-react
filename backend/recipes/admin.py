@@ -37,7 +37,7 @@ class TagsAdmin(admin.ModelAdmin):
 class IngredientsAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'measurement_unit')
     list_filter = ('name',)
-    search_fields = ('name',)
+    search_fields = ('name', 'measurement_unit')
 
 
 @admin.register(Recipes)
@@ -45,15 +45,15 @@ class RecipesAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'author')
     list_editable = ('name',)
     list_filter = ('name', 'author', 'tags')
-    search_fields = ('name', 'author')
+    search_fields = ('name', 'author', 'tags')
 
 
 @admin.register(IngredientsInRecipe)
 class IngredientsInRecipeAdmin(admin.ModelAdmin):
     list_display = ('pk', 'recipe', 'ingredient', 'amount')
-    list_editable = ('recipe', 'ingredient', 'amount')
+    list_editable = ('ingredient', 'amount')
 
-
+# user пользователь recipe любимый рецепт
 @admin.register(FavouriteRecipes)
 class FavouriteRecipesAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'recipe')
