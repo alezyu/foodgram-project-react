@@ -4,7 +4,8 @@ from .models import (FavouriteRecipes,
                      Ingredients,
                      IngredientsInRecipe,
                      Recipes,
-                     Tags
+                     Tags,
+                     ShoppingLists
                      )
 
 
@@ -32,6 +33,13 @@ class TagsAdmin(admin.ModelAdmin):
     list_editable = ('name', 'slug', 'color')
 
 
+@admin.register(Ingredients)
+class IngredientsAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'measurement_unit')
+    list_filter = ('name',)
+    search_fields = ('name',)
+
+
 @admin.register(Recipes)
 class RecipesAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'author')
@@ -40,17 +48,10 @@ class RecipesAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author')
 
 
-@admin.register(Ingredients)
-class IngredientsAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'measurement_unit')
-    list_filter = ('name',)
-    search_fields = ('name',)
-
-
 @admin.register(IngredientsInRecipe)
 class IngredientsInRecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'recipe', 'ingridient', 'amount')
-    list_editable = ('recipe', 'ingridient', 'amount')
+    list_display = ('pk', 'recipe', 'ingredient', 'amount')
+    list_editable = ('recipe', 'ingredient', 'amount')
 
 
 @admin.register(FavouriteRecipes)
@@ -58,3 +59,10 @@ class FavouriteRecipesAdmin(admin.ModelAdmin):
     list_display = ('pk', 'user', 'recipe')
     list_editable = ('user', 'recipe')
     search_fields = ('name', 'recipe')
+
+
+@admin.register(ShoppingLists)
+class ShoppingListAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'user', 'recipe')
+    list_editable = ('user', 'recipe')
+    search_fields = ('user', 'recipe')
