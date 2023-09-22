@@ -26,10 +26,10 @@ class GetSubscribedMixIn:
 
 
 class UserCreateCustomSerializer(UserCreateSerializer):
-    username = serializers.CharField(
+    email = serializers.EmailField(
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
-    email = serializers.EmailField(
+    username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
     first_name = serializers.CharField()
@@ -38,9 +38,9 @@ class UserCreateCustomSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = (
+            'email',
             'id',
             'username',
-            'email',
             'first_name',
             'last_name',
             'password',
@@ -75,3 +75,74 @@ class IngredientsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredients
         fields = '__all__'
+
+
+class FollowSerializer(GetSubscribedMixIn, serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='author.id')
+    email = serializers.ReadOnlyField(source='author.email')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Follow
+        fields = (
+            'id',
+            'email',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+        )
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        queryset = obj.author.recipes.all()
+        if limit:
+            queryset = queryset[: int(limit)]
+        return RecipeAddSerializer(queryset, many=True).data
+
+    def get_recipes_count(self, obj):
+        return obj.author.recipes.all().count()
+    
+
+class CheckFollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ('user', 'author')
+
+    def validate(self, obj):
+        user = obj['user']
+        author = obj['author']
+        subscribed = user.follower.filter(author=author).exists()
+
+        if self.context.get('request').method == 'POST':
+            if user == author:
+                raise serializers.ValidationError(
+                    'Подписка на себя не разрешена'
+                )
+            if subscribed:
+                raise serializers.ValidationError('Вы уже подписались')
+        if self.context.get('request').method == 'DELETE':
+            if user == author:
+                raise serializers.ValidationError(
+                    'Отписка от самого себя не разрешена'
+                )
+            if not subscribed:
+                raise serializers.ValidationError(
+                    {'errors': 'Вы уже отписались'}
+                )
+        return obj
+    
+
+class RecipeAddSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipes
+        fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = ('id', 'name', 'image', 'cooking_time')
