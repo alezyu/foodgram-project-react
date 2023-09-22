@@ -64,6 +64,14 @@ class UserListSerializer(GetSubscribedMixIn, UserSerializer):
 
 
 class TagsSerializer(serializers.ModelSerializer):
+    """Сериализатор для тегов."""
     class Meta:
         model = Tags
+        fields = '__all__'
+
+
+class IngredientsSerializer(serializers.ModelSerializer):
+    """Сериализатор для ингредиентов."""
+    class Meta:
+        model = Ingredients
         fields = '__all__'
