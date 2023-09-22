@@ -1,13 +1,3 @@
-<img
-  src="https://github.com/alezyu/foodgram-project-react/blob/master/images/stat.svg"
-  alt="Alternative Text"
-/>
-Example:
-<img
-  src="https://github.com/avinal/avinal/blob/main/images/stat.svg"
-  alt="Avinal WakaTime Activity"
-/>
-
 # Foodgram - учебный проект курса backend-разработчик Яндекс Практикум
 ![](https://github.com/alezyu/kittygram_final/actions/workflows/main.yml/badge.svg?event=push)
 
