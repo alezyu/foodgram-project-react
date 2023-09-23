@@ -26,13 +26,14 @@ class GetSubscribedMixIn:
             return False
         return user.follower.filter(author=obj.id).exists()
 
-#количество??
+# количество??
 class GetIngredientsMixin:
     def get_ingredients(self, obj):
         return obj.ingredients.values(
             'id',
             'name',
             'measurement_unit',
+            amount=123,
         )
 
 
