@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework.validators import UniqueValidator
@@ -21,19 +22,21 @@ User = get_user_model()
 
 class GetSubscribedMixIn:
     def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
+        user = self.request.user
         if user.is_anonymous or (user == obj):
             return False
         return user.follower.filter(author=obj.id).exists()
 
+
 # количество??
 class GetIngredientsMixin:
     def get_ingredients(self, obj):
+        total_amount = obj.ingredients.aggregate(total_amount=Sum('amount'))['total_amount']
         return obj.ingredients.values(
             'id',
             'name',
             'measurement_unit',
-            amount=123,
+            amount=total_amount,
         )
 
 
@@ -134,14 +137,14 @@ class CheckFollowSerializer(serializers.ModelSerializer):
         author = obj['author']
         subscribed = user.follower.filter(author=author).exists()
 
-        if self.context.get('request').method == 'POST':
+        if self.request.method == 'POST':
             if user == author:
                 raise serializers.ValidationError(
                     'Подписка на себя не разрешена'
                 )
             if subscribed:
                 raise serializers.ValidationError('Вы уже подписались')
-        if self.context.get('request').method == 'DELETE':
+        if self.request.method == 'DELETE':
             if user == author:
                 raise serializers.ValidationError(
                     'Отписка от самого себя не разрешена'
@@ -219,3 +222,49 @@ class RecipesWriteSerializer(GetIngredientsMixin, serializers.ModelSerializer):
             instance, ingredients=ingredients, tags=tags
         )
         return super().update(instance, validated_data)
+
+
+class CheckFavouriteSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipes.objects.all())
+
+    class Meta:
+        model = FavouriteRecipes
+        fields = ('user', 'recipe')
+
+    def validate(self, obj):
+        user = self.context['request'].user
+        recipe = obj['recipe']
+        favorite = user.favourites.filter(recipe=recipe).exists()
+
+        if self.request.method == 'POST' and favorite:
+            raise serializers.ValidationError(
+                'Этот рецепт уже есть в Избранном'
+            )
+        if self.request.method == 'DELETE' and not favorite:
+            raise serializers.ValidationError(
+                'Рецепта нет в Избранном'
+            )
+        return obj
+
+
+class CheckShoppingCartSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    recipe = serializers.PrimaryKeyRelatedField(queryset=Recipes.objects.all())
+
+    class Meta:
+        model = ShoppingLists
+        fields = ('user', 'recipe')
+
+    def validate(self, obj):
+        user = self.context['request'].user
+        recipe = obj['recipe']
+        shop_list = user.list.filter(recipe=recipe).exists()
+
+        if self.request.method == 'POST' and shop_list:
+            raise serializers.ValidationError(
+                'Этот рецепт уже есть в Покупках'
+            )
+        if self.request.method == 'DELETE' and not shop_list:
+            raise serializers.ValidationError('Рецепта нет в Покупках')
+        return obj

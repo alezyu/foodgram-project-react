@@ -2,9 +2,11 @@ from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import Exists, OuterRef, BooleanField, Value, Sum
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework import mixins, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import Follow
@@ -14,12 +16,21 @@ from djoser.views import UserViewSet
 from recipes.models import (
     Tags,
     Ingredients,
+    IngredientsInRecipe,
+    Recipes,
+    FavouriteRecipes,
+    ShoppingLists,
 )
 from .serializers import (
     CheckFollowSerializer,
     FollowSerializer,
     TagsSerializer,
     IngredientsSerializer,
+    RecipesReadSerializer,
+    RecipesWriteSerializer,
+    RecipeAddSerializer,
+    CheckFavouriteSerializer,
+    CheckShoppingCartSerializer,
 )
 
 
@@ -92,3 +103,132 @@ class ViewUsersSet(UserViewSet):
             pages, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
+
+
+class RecipesViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAdminOrReadOnlyObject,)
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return RecipesReadSerializer
+        return RecipesWriteSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Recipes.objects.annotate(
+                is_favorited=Exists(
+                    FavouriteRecipes.objects.filter(
+                        user=self.request.user,
+                        recipe__pk=OuterRef('pk')
+                    )
+                ),
+                is_in_shopping_cart=Exists(
+                    ShoppingLists.objects.filter(
+                        user=self.request.user,
+                    recipe__pk=OuterRef('pk')
+                    )
+                ),
+            )
+        else:
+            return Recipes.objects.annotate(
+                is_favorited=Value(False, output_field=BooleanField()),
+                is_in_shopping_cart=Value(False, output_field=BooleanField()),
+            )
+
+    @transaction.atomic()
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    @action(
+        detail=True, methods=['POST'], permission_classes=(IsAuthenticated,)
+    )
+    def favorite(self, request, pk=None):
+        data = {
+            'user': request.user.id,
+            'recipe': pk,
+        }
+        serializer = CheckFavouriteSerializer(
+            data=data, context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        return self.add_object(FavouriteRecipes, request.user, pk)
+
+    @favorite.mapping.delete
+    @transaction.atomic()
+    def del_favorite(self, request, pk=None):
+        data = {
+            'user': request.user.id,
+            'recipe': pk,
+        }
+        serializer = CheckFavouriteSerializer(
+            data=data,
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+        return self.delete_object(FavouriteRecipes, request.user, pk)
+
+    @action(
+        detail=True,
+        methods=['POST'],
+        permission_classes=(IsAuthenticated,),
+    )
+    @transaction.atomic()
+    def shopping_cart(self, request, pk=None):
+        data = {
+            'user': request.user.id,
+            'recipe': pk,
+        }
+        serializer = CheckShoppingCartSerializer(
+            data=data,
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+        return self.add_object(ShoppingLists, request.user, pk)
+
+    @shopping_cart.mapping.delete
+    @transaction.atomic()
+    def del_shopping_cart(self, request, pk=None):
+        data = {
+            'user': request.user.id,
+            'recipe': pk,
+        }
+        serializer = CheckShoppingCartSerializer(
+            data=data,
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+        return self.delete_object(ShoppingLists, request.user, pk)
+
+    @transaction.atomic()
+    def add_object(self, model, user, pk):
+        recipe = get_object_or_404(Recipes, id=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = RecipeAddSerializer(recipe)
+        return Response(serializer.data, status=HTTPStatus.CREATED)
+
+    @transaction.atomic()
+    def delete_object(self, model, user, pk):
+        model.objects.filter(user=user, recipe__id=pk).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+    @action(
+        methods=['GET'], detail=False, permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        ingredients = (
+            IngredientsInRecipe.objects.filter(recipe__list__user=request.user)
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .order_by('ingredient__name')
+            .annotate(total=Sum('amount'))
+        )
+        result = 'Список покупок с сайта Foodgram:\n\n'
+        result += '\n'.join(
+            (
+                f'{ingredient["ingredient__name"]} - {ingredient["total"]}/'
+                f'{ingredient["ingredient__measurement_unit"]}'
+                for ingredient in ingredients
+            )
+        )
+        response = HttpResponse(result, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={"shopping-list.txt"}'
+        return response
