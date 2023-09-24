@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from colorfield.fields import ColorField
 
 User = get_user_model()
-
 
 """
 Тег
@@ -22,11 +22,7 @@ class Tags(models.Model):
         max_length=100,
         unique=True,
     )
-    color = models.CharField(
-        verbose_name='Цвет #HEX',
-        max_length=7,
-        unique=True,
-    )
+    color = ColorField(default='#FF0000')
     slug = models.SlugField(
         verbose_name='Уникальный слаг',
         max_length=100,
@@ -57,10 +53,12 @@ class Tags(models.Model):
 
 class Ingredients(models.Model):
     name = models.CharField(
-        verbose_name='Название ингредиента', max_length=100
+        verbose_name='Название ингредиента',
+        max_length=100,
     )
     measurement_unit = models.CharField(
-        verbose_name='Единица измерения', max_length=16
+        verbose_name='Единица измерения',
+        max_length=16,
     )
 
     class Meta:
@@ -69,7 +67,7 @@ class Ingredients(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return f'{self.name}, {self.measurement_unit}.'
+        return f'{self.name}, {self.measurement_unit}'
 
 
 """
@@ -95,12 +93,15 @@ class Recipes(models.Model):
         on_delete=models.CASCADE,
         related_name='recipes',
     )
-    name = models.CharField(verbose_name='Название рецепта', max_length=100)
+    name = models.CharField(
+        verbose_name='Название рецепта',
+        max_length=100,
+    )
     image = models.ImageField(
         verbose_name='Изображение',
         blank=True,
         null=True,
-        upload_to='image_recipes/',
+        upload_to='images_recipes/',
     )
     text = models.TextField(
         verbose_name='Описание рецепта',
@@ -135,15 +136,15 @@ class Recipes(models.Model):
 class IngredientsInRecipe(models.Model):
     recipe = models.ForeignKey(
         Recipes,
-        on_delete=models.CASCADE,
-        related_name='ingredients_amount',
         verbose_name='Рецепт',
+        related_name='ingredients_amount',
+        on_delete=models.CASCADE,
     )
     ingredient = models.ForeignKey(
         Ingredients,
-        on_delete=models.CASCADE,
-        related_name='ingredients_amount',
         verbose_name='Ингредиент',
+        related_name='ingredients_amount',
+        on_delete=models.CASCADE,
     )
     amount = models.PositiveIntegerField(
         default=1,
@@ -156,26 +157,29 @@ class IngredientsInRecipe(models.Model):
         ordering = ('id',)
         constraints = [
             models.UniqueConstraint(
-                fields=('recipe', 'ingredient'), name='unique_ingredient'
+                fields=('recipe', 'ingredient'),
+                name='unique_ingredient',
             )
         ]
 
     def __str__(self):
-        return f'{self.ingredient.name} - {self.amount}'
+        return (
+            f'{self.ingredient.name} - {self.amount},'
+            f'{self.ingredient.measurement_unit}.')
 
 
 class FavouriteRecipes(models.Model):
     user = models.ForeignKey(
         User,
+        verbose_name='Пользователь',
         on_delete=models.CASCADE,
         related_name='favourites',
-        verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipes,
+        verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='favourites',
-        verbose_name='Рецепт',
     )
 
     class Meta:
@@ -200,11 +204,12 @@ class ShoppingLists(models.Model):
         related_name='list',
         verbose_name='Пользователь',
     )
+    # related name namings
     recipe = models.ForeignKey(
         Recipes,
+        verbose_name='Рецепт',
         on_delete=models.CASCADE,
         related_name='list',
-        verbose_name='Рецепт',
     )
 
     class Meta:
@@ -217,3 +222,5 @@ class ShoppingLists(models.Model):
                 name='unique_list_user',
             )
         ]
+    def __str__(self):
+        return f'Рецепт {self.recipe.name}'
