@@ -1,4 +1,5 @@
-# В РАЗРАБОТКЕ
+# В РАЗРАБОТКЕ!
+> не полностью рабочая версия!
 # Foodgram - учебный проект курса backend-разработчик Яндекс Практикум
 ![](https://github.com/alezyu/kittygram_final/actions/workflows/main.yml/badge.svg?event=push)
 
