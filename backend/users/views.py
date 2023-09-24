@@ -17,7 +17,6 @@ from rest_framework.response import Response
 
 from .models import Subscriber
 from .serializers import (
-    ChangePasswordSerializer,
     FollowSerializer,
     CheckFollowSerializer,
     UserSerializer,
@@ -95,22 +94,3 @@ class SubscribeListViewSet(
     def get_queryset(self):
         return self.request.user.subscriber.all()
 
-
-class ChangePasswordView(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = ChangePasswordSerializer
-
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        new_password = serializer.validated_data['new_password']
-        user = request.user
-
-        user.set_password(new_password)
-        user.save()
-
-        return Response(
-            {'detail': 'Пароль успешно изменен.'},
-            status=status.HTTP_200_OK,
-        )

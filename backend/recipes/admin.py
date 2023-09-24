@@ -5,7 +5,7 @@ from .models import (FavouriteRecipes,
                      IngredientsInRecipe,
                      Recipes,
                      Tags,
-                     ShoppingLists
+                     ShoppingLists,
                      )
 
 
@@ -46,6 +46,10 @@ class RecipesAdmin(admin.ModelAdmin):
     list_editable = ('name',)
     list_filter = ('name', 'author', 'tags')
     search_fields = ('name', 'author', 'tags')
+
+    def favorite(self, data):
+        counter = FavouriteRecipes.objects.filter(recipe=data).count()
+        return counter
 
 
 @admin.register(IngredientsInRecipe)
