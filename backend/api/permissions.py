@@ -1,18 +1,30 @@
-from rest_framework import permissions
+# проверить на запросах!
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+class CustomBasePermissions(BasePermission):
     def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS or (
-            request.user.is_authenticated
-            and (request.user.is_admin or request.user.is_superuser)
+        return bool(
+            request.method in SAFE_METHODS
+            or request.user.is_authenticated
+            and request.user.is_active
         )
 
 
-class IsAdminOrReadOnlyObject(permissions.IsAuthenticatedOrReadOnly):
+class AdminOrReadOnly(CustomBasePermissions):
+    """ Безопасный запрос или пользователь авторизован или стафф. """
     def has_object_permission(self, request, view, obj):
         return (
-            request.method in permissions.SAFE_METHODS
-            or (request.user == obj.author)
+            request.method in SAFE_METHODS
+            or request.user.is_staff
+        )
+
+
+class OwnerUserOrReadOnly(CustomBasePermissions):
+    """ Безопасный запрос или пользователь авторизован и автор или стафф. """
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in SAFE_METHODS
+            or request.user == obj.subscribing
             or request.user.is_staff
         )

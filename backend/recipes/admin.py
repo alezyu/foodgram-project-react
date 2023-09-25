@@ -1,72 +1,36 @@
 from django.contrib import admin
 
-from .models import (FavouriteRecipes,
-                     Ingredients,
-                     IngredientsInRecipe,
-                     Recipes,
-                     Tags,
-                     ShoppingLists,
-                     )
+from .models import Favourites, Ingredients, Recipes, ShoppingCart, Tags
 
 
-"""
-Как должна быть настроена админка
-В интерфейс админ-зоны нужно вывести необходимые поля моделей и настроить фильтры:
+@admin.register(Ingredients)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'measurement_unit')
+    search_fields = ('^name',)
+    list_filter = ('name',)
 
-    вывести все модели с возможностью редактирования и удаление записей;
-    для модели пользователей добавить фильтр списка по email и имени пользователя;
-    для модели рецептов:
-      
-        в списке рецептов вывести название и имя автора рецепта;
-        добавить фильтры по автору, названию рецепта, тегам;
-        на странице рецепта вывести общее число добавлений этого рецепта в избранное;
-    для модели ингредиентов:
-      
-        в список вывести название ингредиента и единицы измерения;
-        добавить фильтр по названию.
-"""
+
+class RecipeIngredientInline(admin.TabularInline):
+    model = Recipes.ingredients.through
+    extra = 1
+
+
+@admin.register(Recipes)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'author', 'favourite')
+    inlines = (RecipeIngredientInline,)
+    list_filter = ('name', 'tags', 'author')
+
+    def favourite(self, obj):
+        counter = Favourites.objects.filter(recipe=obj).count()
+        return counter
 
 
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'slug', 'color')
-    list_editable = ('name', 'slug', 'color')
+    list_display = ('id', 'name', 'color', 'slug')
+    search_fields = ('^name',)
 
 
-@admin.register(Ingredients)
-class IngredientsAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'measurement_unit')
-    list_filter = ('name',)
-    search_fields = ('name', 'measurement_unit')
-
-
-@admin.register(Recipes)
-class RecipesAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'name', 'author')
-    list_editable = ('name',)
-    list_filter = ('name', 'author', 'tags')
-    search_fields = ('name', 'author', 'tags')
-
-    def favorite(self, data):
-        counter = FavouriteRecipes.objects.filter(recipe=data).count()
-        return counter
-
-
-@admin.register(IngredientsInRecipe)
-class IngredientsInRecipeAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'recipe', 'ingredient', 'amount')
-    list_editable = ('ingredient', 'amount')
-
-# user пользователь recipe любимый рецепт
-@admin.register(FavouriteRecipes)
-class FavouriteRecipesAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'recipe')
-    list_editable = ('user', 'recipe')
-    search_fields = ('name', 'recipe')
-
-
-@admin.register(ShoppingLists)
-class ShoppingListAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'user', 'recipe')
-    list_editable = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
+admin.site.register(ShoppingCart)
+admin.site.register(Favourites)
