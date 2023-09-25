@@ -133,7 +133,8 @@ class RecipeIngredients(models.Model):
                     'ingredient',
                 ),
                 name='recipe_ingredient_unique',
-                # violation_error_message='Такой ингредиент уже есть в рецепте!',
+                # violation_error_message=
+                # 'Такой ингредиент уже есть в рецепте!',
             )
         ]
 
