@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import validate_image_file_extension, validate_slug
 from django.db import models
 from rest_framework.fields import MinValueValidator
+
+from .validators import validate_hex
 
 
 User = get_user_model()
@@ -18,11 +21,13 @@ class Tags(models.Model):
         verbose_name='Цвет в формате #Hex',
         max_length=7,
         unique=True,
+        validators=[validate_hex, ]
     )
     slug = models.SlugField(
         verbose_name='Уникальный слаг',
         max_length=100,
         unique=True,
+        validators=[validate_slug, ]
     )
 
     class Meta:
@@ -48,6 +53,7 @@ class Recipes(models.Model):
         blank=True,
         null=True,
         upload_to='recipes/images/',
+        validators=[validate_image_file_extension, ]
     )
     text = models.TextField(
         verbose_name='Описание рецепта',

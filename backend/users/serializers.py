@@ -53,7 +53,7 @@ class UserCreateCustomSerializer(UserSerializer):
         validators=[
             UniqueValidator(queryset=User.objects.all()),
             RegexValidator(
-                regex='^[a-zA-Z0-9/.-]+$',
+                regex='^[\\w.@+-]+\\z',
                 message='Разрешены буквы, цифры и символы ., @, +, - '
             ),
             MaxLengthValidator(
