@@ -27,7 +27,7 @@ User = get_user_model()
 
 class CurrentUserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated,]
+    permission_classes = [permissions.IsAuthenticated, ]
 
     def get_object(self):
         return self.request.user
@@ -36,13 +36,13 @@ class CurrentUserView(generics.RetrieveAPIView):
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
     pagination_class = LimitOffsetPagination
 
     @action(
         detail=True,
         methods=['POST'],
-        permission_classes=[permissions.IsAuthenticated],
+        permission_classes=[permissions.IsAuthenticated, ],
     )
     @transaction.atomic()
     def subscribe(self, request, id=None):
@@ -63,7 +63,7 @@ class CustomUserViewSet(UserViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    #нужно ли тут это?
+    # нужно ли тут это?
     @subscribe.mapping.delete
     @transaction.atomic()
     def delete_subscribe(self, request, id=None):
@@ -85,7 +85,7 @@ class SubscribeListViewSet(
 ):
     serializer_class = SubscribersSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('subscribing__username', 'subscriber__username')
+    search_fields = ['subscribing__username', 'subscriber__username', ]
     pagination_class = [LimitOffsetPagination, ]
 
     def get_queryset(self):

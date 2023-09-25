@@ -5,7 +5,6 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import (
-    AllowAny,
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
 )
@@ -22,7 +21,7 @@ from recipes.models import (
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
-from api.permissions import AdminOrReadOnly, OwnerUserOrReadOnly
+from api.permissions import AdminOrReadOnly
 from .serializers import (
     FavouriteSerializer,
     IngredientSerializer,
@@ -103,7 +102,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @favourite.mapping.delete
     def delete_favourite(self, request, pk):
         recipe = get_object_or_404(Recipes, id=pk)
-        favourites = get_object_or_404(Favourites, user=request.user, recipe=recipe)
+        favourites = get_object_or_404(
+            Favourites,
+            user=request.user,
+            recipe=recipe,
+        )
         favourites.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -128,7 +131,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk=None):
         recipe = get_object_or_404(Recipes, id=pk)
-        favourites = get_object_or_404(ShoppingCart, user=request.user, recipe=recipe)
+        favourites = get_object_or_404(
+            ShoppingCart,
+            user=request.user,
+            recipe=recipe,
+        )
         favourites.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

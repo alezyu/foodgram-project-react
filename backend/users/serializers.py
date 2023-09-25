@@ -53,20 +53,29 @@ class UserCreateCustomSerializer(UserSerializer):
         validators=[
             UniqueValidator(queryset=User.objects.all()),
             RegexValidator(
-                regex='^[a-zA-Z0-9\.-]+$',
+                regex='^[a-zA-Z0-9/.-]+$',
                 message='Разрешены буквы, цифры и символы ., @, +, - '
             ),
-            MaxLengthValidator(limit_value=150, message='Не более 150 символов!'),
+            MaxLengthValidator(
+                limit_value=150,
+                message='Не более 150 символов!',
+            ),
         ]
     )
     first_name = serializers.CharField(
         validators=[
-            MaxLengthValidator(limit_value=150, message='Не более 150 символов!'),
+            MaxLengthValidator(
+                limit_value=150,
+                message='Не более 150 символов!',
+            ),
         ]
     )
     last_name = serializers.CharField(
         validators=[
-            MaxLengthValidator(limit_value=150, message='Не более 150 символов!'),
+            MaxLengthValidator(
+                limit_value=150,
+                message='Не более 150 символов!',
+            ),
         ]
     )
 

@@ -69,14 +69,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': os.getenv('POSTGRES_DB', 'postgres'),
-    #     'USER': os.getenv('POSTGRES_USER', 'postgres'),
-    #     'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'opstgres'),
-    #     'HOST': os.getenv('DB_HOST', 'db'),
-    #     'PORT': os.getenv('DB_PORT', 5432)
-    # }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -122,8 +115,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
-
-# add throttle on prod
+    # add throtle on prod
 }
 
 

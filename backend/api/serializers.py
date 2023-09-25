@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
@@ -83,7 +82,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
-        return Favourites.objects.filter(user=request.user, recipe=obj).exists()
+        return Favourites.objects.filter(
+            user=request.user,
+            recipe=obj,
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
@@ -109,7 +111,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             ingredients_set.add(id)
         data['ingredients'] = ingredients
         return data
-    
+
     # через bulk_create удобнее?
     def add_tags(self, instance):
         tags = self.initial_data.get('tags')
