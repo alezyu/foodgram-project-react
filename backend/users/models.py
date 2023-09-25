@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.core.validators import validate_email
 from django.db import models
 
 
@@ -42,6 +43,7 @@ class CustomUser(AbstractUser):
         verbose_name='email',
         max_length=254,
         unique=True,
+        validators=[validate_email, ]
     )
     username = models.CharField(
         verbose_name='Имя пользователя',

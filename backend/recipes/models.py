@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import validate_image_file_extension, validate_slug
+from django.core.validators import (
+    validate_image_file_extension,
+    validate_slug,
+    MinValueValidator
+    )
 from django.db import models
-from rest_framework.fields import MinValueValidator
 
 from .validators import validate_hex
 
@@ -58,7 +61,6 @@ class Recipes(models.Model):
     text = models.TextField(
         verbose_name='Описание рецепта',
     )
-    # можон лучше
     ingredients = models.ManyToManyField(
         'Ingredients',
         through='RecipeIngredients',
@@ -72,7 +74,7 @@ class Recipes(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (в минутах)',
-        validators=(MinValueValidator(1),)
+        validators=[MinValueValidator(1), ]
     )
 
     pub_date = models.DateTimeField(
@@ -129,6 +131,7 @@ class RecipeIngredients(models.Model):
     amount = models.PositiveIntegerField(
         verbose_name='Количество в рецепте',
         default=1,
+        validators=[MinValueValidator(1), ]
     )
 
     class Meta:
