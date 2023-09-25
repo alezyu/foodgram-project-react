@@ -113,7 +113,6 @@ class Ingredients(models.Model):
         max_length=12,
         choices=MEASUREMENT_UNIT,
     )
-    
 
     class Meta:
         verbose_name = 'Ингредиент'
