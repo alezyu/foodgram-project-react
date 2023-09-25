@@ -1,11 +1,11 @@
 from django.core.validators import MaxLengthValidator, RegexValidator
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.authentication import get_user_model
 from rest_framework.validators import UniqueValidator
 
 from recipes.models import Recipes
-
 from .models import CustomUser, Subscribe
+
 
 User = get_user_model()
 
