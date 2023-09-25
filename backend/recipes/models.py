@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from django.core.validators import (
     validate_image_file_extension,
     validate_slug,
-    MinValueValidator
-    )
+    MinValueValidator,
+)
 from django.db import models
 
 from .validators import validate_hex
