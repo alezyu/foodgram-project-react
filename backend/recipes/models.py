@@ -9,6 +9,18 @@ from django.db import models
 from .validators import validate_hex
 
 
+MEASUREMENT_UNIT = (
+    ('гр.', 'грамм'),
+    ('мгр.', 'милиграмм'),
+    ('ст.л.', 'ст.ложка'),
+    ('ч.л.', 'ч.ложка'),
+    ('ст.', 'стакан'),
+    ('л.', 'литр'),
+    ('мл.', 'милилитр'),
+    ('горсть', 'горсть'),
+)
+
+
 User = get_user_model()
 
 
@@ -99,7 +111,9 @@ class Ingredients(models.Model):
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
         max_length=12,
+        choices=MEASUREMENT_UNIT,
     )
+    
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -204,5 +218,5 @@ class ShoppingCart(models.Model):
     def __str__(self):
         return (
             f'Рецепт {self.recipe.name} '
-            f'из списка покупок'
+            f'из списка покупок {self.user}'
         )
