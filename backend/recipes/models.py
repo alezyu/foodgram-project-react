@@ -11,6 +11,8 @@ class Tags(models.Model):
         verbose_name='Название тега',
         max_length=100,
         unique=True,
+        blank=True,
+        null=True,
     )
     color = models.CharField(
         verbose_name='Цвет в формате #Hex',
@@ -60,6 +62,7 @@ class Recipes(models.Model):
     tags = models.ManyToManyField(
         Tags,
         verbose_name='Список тегов',
+        blank=True,
     )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления (в минутах)',
@@ -130,6 +133,7 @@ class RecipeIngredients(models.Model):
                     'ingredient',
                 ),
                 name='recipe_ingredient_unique',
+                # violation_error_message='Такой ингредиент уже есть в рецепте!',
             )
         ]
 

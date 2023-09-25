@@ -95,10 +95,11 @@ class Subscribe(models.Model):
         related_name='subscriber'
     )
     # подписывается
-    subscribing = models.ForeignKey(
+    author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
-        related_name='subscribing'
+        related_name='author',
+        default=None,
     )
 
     class Meta:
@@ -106,11 +107,11 @@ class Subscribe(models.Model):
             models.UniqueConstraint(
                 fields=[
                     'user',
-                    'subscribing',
+                    'author',
                 ],
                 name='unique_subscribe'
             ),
         ]
 
     def __str__(self) -> str:
-        return f'{self.user} подписан на {self.subscribing}'
+        return f'{self.user} подписан на {self.author}'

@@ -41,7 +41,7 @@ class UserSerializer(serializers.ModelSerializer):
             return False
         return Subscribe.objects.filter(
             user=request.user,
-            subscribing=obj.id
+            author=obj.id
         ).exists()
 
 
@@ -109,11 +109,11 @@ class SubscribeToRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscribersSerializer(UserSerializer):
-    email = serializers.EmailField(source='subscribing.email')
-    id = serializers.IntegerField(source='subscribing.id')
-    username = serializers.CharField(source='subscribing.username')
-    first_name = serializers.CharField(source='subscribing.first_name')
-    last_name = serializers.CharField(source='subscribing.last_name')
+    email = serializers.EmailField(source='author.email')
+    id = serializers.IntegerField(source='author.id')
+    username = serializers.CharField(source='author.username')
+    first_name = serializers.CharField(source='author.first_name')
+    last_name = serializers.CharField(source='author.last_name')
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -133,39 +133,39 @@ class SubscribersSerializer(UserSerializer):
         limit = self.context.get('request').query_params.get('recipes_limit')
 
         if limit:
-            queryset = Recipes.objects.filter(author=obj.subscribing).order_by(
+            queryset = Recipes.objects.filter(author=obj.author).order_by(
                 '-id'
             )[:int(limit)]
         else:
-            queryset = Recipes.objects.filter(author=obj.subscribing)
+            queryset = Recipes.objects.filter(author=obj.author)
         return SubscribeToRecipeSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipes.objects.filter(author=obj.subscribing).count()
+        return Recipes.objects.filter(author=obj.author).count()
 
 
 class SubscribeToUserSerializer(serializers.ModelSerializer):
     queryset = User.objects.all()
     user = serializers.PrimaryKeyRelatedField(queryset=queryset)
-    subscribing = serializers.PrimaryKeyRelatedField(queryset=queryset)
+    author = serializers.PrimaryKeyRelatedField(queryset=queryset)
 
     class Meta:
         model = Subscribe
         fields = (
             'user',
-            'subscribing'
+            'author'
         )
 
     def validate(self, data):
         request = self.context.get('request')
-        subscribing_id = data['subscribing'].id
+        author_id = data['author'].id
         subscribe_is_exists = Subscribe.objects.filter(
             user=request.user,
-            subscribing__id=subscribing_id
+            author__id=author_id
         ).exists()
 
         if request.method == 'POST':
-            if request.user.id == subscribing_id:
+            if request.user.id == author_id:
                 raise serializers.ValidationError(
                     'Нельзя подписаться на самого себя.'
                 )

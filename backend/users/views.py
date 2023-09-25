@@ -46,10 +46,10 @@ class CustomUserViewSet(UserViewSet):
     )
     @transaction.atomic()
     def subscribe(self, request, id=None):
-        subscribing = get_object_or_404(User, id=id)
+        author = get_object_or_404(User, id=id)
         data = {
             'user': request.user.id,
-            'subscribing': subscribing.id,
+            'author': author.id,
         }
         serializer = SubscribeToUserSerializer(
             data=data,
@@ -67,11 +67,11 @@ class CustomUserViewSet(UserViewSet):
     @subscribe.mapping.delete
     @transaction.atomic()
     def delete_subscribe(self, request, id=None):
-        subscribing = get_object_or_404(User, id=id)
+        author = get_object_or_404(User, id=id)
         subscribe = get_object_or_404(
             Subscribe,
             user=request.user,
-            subscribing=subscribing,
+            author=author,
         )
         subscribe.delete()
         return Response(
@@ -85,7 +85,7 @@ class SubscribeListViewSet(
 ):
     serializer_class = SubscribersSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ['subscribing__username', 'subscriber__username', ]
+    search_fields = ['author__username', 'subscriber__username', ]
     pagination_class = [LimitOffsetPagination, ]
 
     def get_queryset(self):
