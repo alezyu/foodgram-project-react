@@ -90,13 +90,11 @@ class CustomUser(AbstractUser):
 
 
 class Subscribe(models.Model):
-    # кто
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,
         related_name='subscriber'
     )
-    # подписывается
     author = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,

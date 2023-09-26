@@ -5,10 +5,12 @@ from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
+    AllowAny,
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from recipes.models import (
     Favourites,
@@ -18,7 +20,6 @@ from recipes.models import (
     ShoppingCart,
     Tags,
 )
-from api.permissions import AdminOrReadOnly
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .serializers import (
@@ -30,20 +31,20 @@ from .serializers import (
 )
 
 
-class TagViewSet(viewsets.ModelViewSet):
+class TagViewSet(ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
-    permission_classes = (AdminOrReadOnly,)
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     pagination_class = None
     filterset_class = IngredientFilter
-    permission_classes = (AdminOrReadOnly,)
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -97,6 +98,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 
     @favourite.mapping.delete
     def delete_favourite(self, request, pk):

@@ -29,8 +29,16 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'color', 'slug')
-    search_fields = ('^name',)
+    search_fields = ('^name', )
 
 
-admin.site.register(ShoppingCart)
-admin.site.register(Favourites)
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recipe',)
+    search_fields = ('^user__username', )
+
+
+@admin.register(Favourites)
+class FavouritesAdmin(admin.ModelAdmin):
+    list_display = ('user', 'recipe', )
+    search_fields = ('^user__username', )

@@ -64,7 +64,6 @@ class CustomUserViewSet(UserViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    # нужно ли тут это?
     @subscribe.mapping.delete
     @transaction.atomic()
     def delete_subscribe(self, request, id=None):

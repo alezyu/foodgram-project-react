@@ -1,5 +1,6 @@
 from django.core.validators import MaxLengthValidator, RegexValidator
 from django.contrib.auth import get_user_model
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -133,21 +134,21 @@ class SubscribersSerializer(UserSerializer):
         limit = self.context.get('request').query_params.get('recipes_limit')
 
         if limit:
-            queryset = Recipes.objects.filter(author=obj.author).order_by(
+            queryset = obj.author_recipes.count().order_by(
                 '-id'
             )[:int(limit)]
         else:
-            queryset = Recipes.objects.filter(author=obj.author)
+            queryset = obj.author_recipes.count()
         return SubscribeToRecipeSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipes.objects.filter(author=obj.author).count()
+        #return Recipes.objects.filter(author=obj.author).count()
+        return obj.author_recipes.count()
 
 
 class SubscribeToUserSerializer(serializers.ModelSerializer):
-    queryset = User.objects.all()
-    user = serializers.PrimaryKeyRelatedField(queryset=queryset)
-    author = serializers.PrimaryKeyRelatedField(queryset=queryset)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    author = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Subscribe

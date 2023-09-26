@@ -8,63 +8,8 @@ from django.core.exceptions import ValidationError
 from .models import CustomUser
 
 
-class RegisterForm(forms.ModelForm):
-    password = forms.CharField(
-        label='Пароль',
-        widget=forms.PasswordInput,
-    )
-    repeat_password = forms.CharField(
-        label='Введите повторно',
-        widget=forms.PasswordInput,
-    )
-
-    class Meta:
-        model = CustomUser
-        fields = (
-            'email',
-            'username',
-            'first_name',
-            'last_name',
-        )
-
-    def clean_password2(self):
-        password = self.cleaned_data.get('password')
-        repeat_password = self.cleaned_data.get('repeat_password')
-        if password and repeat_password and password != repeat_password:
-            raise ValidationError('Пароли не совпадают')
-        return repeat_password
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password'])
-        if commit:
-            user.save()
-        return user
-
-
-class ChangePasswordForm(forms.ModelForm):
-    password = ReadOnlyPasswordHashField()
-
-    class Meta:
-        model = CustomUser
-        fields = (
-            'email',
-            'password',
-            'username',
-            'first_name',
-            'last_name',
-            'is_active',
-            'is_admin',
-            'is_staff',
-        )
-
-    def clean_password(self):
-        return self.initial['password']
-
-
-class UserAdmin(BaseUserAdmin):
-    form = ChangePasswordForm
-    add_form = RegisterForm
+@admin.register(CustomUser)
+class MyUserAdmin(BaseUserAdmin):
     list_display = (
         'id',
         'email',
@@ -99,7 +44,5 @@ class UserAdmin(BaseUserAdmin):
     ordering = ('email',)
     filter_horizontal = ()
 
-
-admin.site.register(CustomUser, UserAdmin)
 
 admin.site.unregister(Group)

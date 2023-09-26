@@ -13,7 +13,6 @@ DEBUG = os.getenv('DEBUG', 'True')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
-    path('api/', include('users.urls')),
 ]
 
 if DEBUG:

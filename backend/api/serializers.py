@@ -203,3 +203,16 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredients
         fields = ['id', 'name', 'measurement_unit', ]
+
+
+class CustomRecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipes
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
