@@ -1,5 +1,7 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator, ValidationError
 from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (
@@ -41,6 +43,19 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
             'measurement_unit',
             'amount',
         )
+        validators = [
+            UniqueTogetherValidator(
+                queryset=RecipeIngredients.objects.all(),
+                fields=['ingredient', 'recipe']
+            )
+        ]
+
+        def validate_amount(self, amount):
+            if amount <= 0:
+                raise serializers.ValidationError(
+                    'Количество ингредиента должно быть больше 0.'
+                )
+            return amount
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -73,107 +88,114 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_in_shopping_cart',
             'is_favourited',
         )
-        read_only_fields = (
-            'is_in_shopping_cart',
-            'is_favourited',
-        )
+
+    def validate_cooking_time(self, cooking_time):
+        if cooking_time <= 0:
+            raise ValidationError(
+                'Время приготовления должно быть больше 0.'
+            )
+        return cooking_time
 
     def get_is_favourited(self, obj):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return Favourites.objects.filter(
-            user=request.user,
-            recipe=obj,
-        ).exists()
+        return (
+            request.user.is_authenticated
+            and Favourites.objects.filter(
+                user=request.user,
+                recipe=obj,
+            ).exists()
+        )
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return ShoppingCart.objects.filter(
-            user=request.user, recipe=obj
-        ).exists()
+        return (
+            request.user.is_authenticated
+            and ShoppingCart.objects.filter(
+                user=request.user,
+                recipe=obj,
+            ).exists()
+        )
 
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
-        ingredients_set = set()
+        ingredients_temp_struct = set()
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:
                 raise serializers.ValidationError(
                     ('В рецепте должны быть ингредиенты.')
                 )
             id = ingredient.get('id')
-            if id in ingredients_set:
+            if id in ingredients_temp_struct:
                 raise serializers.ValidationError(
                     'Ингредиент можно добавить только один раз.'
                 )
-            ingredients_set.add(id)
+            ingredients_temp_struct.add(id)
         data['ingredients'] = ingredients
+        cooking_time = self.initial_data.get('cooking_time')
+        if cooking_time < 1:
+            raise serializers.ValidationError(
+                'Время приготовления должно быть от 1 минуты.'
+            )
         return data
 
-    # через bulk_create удобнее?
-    def add_tags(self, instance):
-        tags = self.initial_data.get('tags')
+    @staticmethod
+    def add_tags(tags, recipe):
         for tag_id in tags:
-            instance.tags.add(tag_id)
-        return instance
+            recipe.tags.add(tag_id)
 
-    def add_ingredients(self, ingredients, instance):
-        for ingredient in ingredients:
-            ingredients_amounts = RecipeIngredients.objects.create(
-                recipe=instance,
-                ingredient_id=ingredient.get('id'),
+    @staticmethod
+    def add_ingredients(ingredients, recipe):
+        ingredients_in_recipe = [
+            RecipeIngredients(
+                recipe=recipe,
+                ingredient=get_object_or_404(Ingredients, pk=ingredient['id']),
                 amount=ingredient.get('amount'),
             )
-            ingredients_amounts.save()
+            for ingredient in ingredients
+        ]
+        RecipeIngredients.objects.bulk_create(ingredients_in_recipe)
 
     @transaction.atomic
     def create(self, validated_data):
         image = validated_data.pop('image')
         ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
         instance = Recipes.objects.create(image=image, **validated_data)
-        instance = self.add_tags(instance)
+        self.add_tags(tags, instance)
         self.add_ingredients(ingredients, instance)
         return instance
 
     @transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
-        super().update(instance, validated_data)
+        tags = validated_data.pop('tags')
         instance.tags.clear()
-        instance = self.add_tags(instance)
         RecipeIngredients.objects.filter(recipe=instance).delete()
+        self.add_tags(tags, instance)
         self.add_ingredients(ingredients, instance)
-        instance.save()
-        return instance
+        return super().update(instance, validated_data)
 
 
-class FavouriteSerializer(serializers.ModelSerializer):
+class FavouriteSerializer(serializers.ModelSerializer): 
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipes.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Favourites
         fields = ('user', 'recipe')
-
-    def validate(self, data):
-        request = self.context.get('request')
-        recipe_id = data['recipe'].id
-        favourite_exists = Favourites.objects.filter(
-            user=request.user,
-            recipe__id=recipe_id,
-        ).exists()
-        if request.method == 'GET' and favourite_exists:
-            raise serializers.ValidationError(
-                'Рецепт уже добавлен.'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favourites.objects.all(),
+                fields=('user', 'recipe', ),
+                message='Уже есть в избранном.',
             )
-        return data
+        ]
 
     def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return FollowerRecipeSerializer(instance.recipe, context=context).data
+        return FollowerRecipeSerializer(
+            instance.recipe,
+            context={'request': self.context.get('request')}
+        ).data
 
 
 class ShoppingCartSerializer(FavouriteSerializer):
@@ -193,16 +215,11 @@ class ShoppingCartSerializer(FavouriteSerializer):
                 )
             return data
 
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return FollowerRecipeSerializer(instance.recipe, context=context).data
-
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredients
-        fields = ['id', 'name', 'measurement_unit', ]
+        fields = ('id', 'name', 'measurement_unit', )
 
 
 class CustomRecipeSerializer(serializers.ModelSerializer):

@@ -16,11 +16,16 @@ class RecipeIngredientInline(admin.TabularInline):
     min_num = 1
 
 
+class RecipeTagsInline(admin.TabularInline):
+    model = Recipes.tags.through
+    min_num = 0
+
+
 @admin.register(Recipes)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'favourite', )
     list_filter = ('name', 'tags', 'author')
-    inlines = [RecipeIngredientInline, ]
+    inlines = (RecipeIngredientInline, RecipeTagsInline, )
 
     def favourite(self, obj):
         counter = Favourites.objects.filter(recipe=obj).count()

@@ -88,13 +88,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated],
     )
 
-    ########### favourite and shopping_cart - same code
     def favourite(self, request, pk):
-        if request.method == 'POST':
-            return self.add_to_model(Recipes, request.user, pk)
-        else:
-            return self.delete_from_model(Recipes, request.user, pk)
-    
+        recipe = get_object_or_404(Recipes, id=pk)
+        data = {
+            'user': request.user.id,
+            'recipe': recipe.id,
+        }
+        serializer = FavouriteSerializer(
+            data=data, context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
     @action(
         detail=True,
         methods=['POST'],
