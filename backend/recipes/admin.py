@@ -16,11 +16,6 @@ class RecipeIngredientInline(admin.TabularInline):
     min_num = 1
 
 
-class RecipeTagInline(admin.TabularInline):
-    model = Recipes.tags.through
-    min_num = 1
-
-
 @admin.register(Recipes)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('name', 'author', 'favourite', )

@@ -23,6 +23,7 @@ from recipes.models import (
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .serializers import (
+    CustomRecipeSerializer,
     FavouriteSerializer,
     IngredientSerializer,
     RecipeSerializer,
@@ -86,31 +87,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['POST'],
         permission_classes=[IsAuthenticated],
     )
+
+    ########### favourite and shopping_cart - same code
     def favourite(self, request, pk):
-        recipe = get_object_or_404(Recipes, id=pk)
-        data = {
-            'user': request.user.id,
-            'recipe': recipe.id,
-        }
-        serializer = FavouriteSerializer(
-            data=data, context={'request': request}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if request.method == 'POST':
+            return self.add_to_model(Recipes, request.user, pk)
+        else:
+            return self.delete_from_model(Recipes, request.user, pk)
     
-
-    @favourite.mapping.delete
-    def delete_favourite(self, request, pk):
-        recipe = get_object_or_404(Recipes, id=pk)
-        favourites = get_object_or_404(
-            Favourites,
-            user=request.user,
-            recipe=recipe,
-        )
-        favourites.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
     @action(
         detail=True,
         methods=['POST'],
@@ -140,14 +124,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         favourites.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(
-        detail=False,
-        permission_classes=[IsAuthenticated],
-    )
-    def download_shopping_cart(self, request):
+    @favourite.mapping.delete
+    def delete_favourite(self, request, pk):
+        recipe = get_object_or_404(Recipes, id=pk)
+        favourites = get_object_or_404(
+            Favourites,
+            user=request.user,
+            recipe=recipe,
+        )
+        favourites.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @staticmethod
+    def generate_list_for_shopping(user):
         ingredients = (
             RecipeIngredients.objects.select_related('recipes')
-            .filter(recipe__customers__user=request.user)
+            .filter(recipe__customers__user=user)
             .values('ingredient__name', 'ingredient__measurement_unit')
             .annotate(amount=Sum('amount'))
             .values_list(
@@ -159,6 +151,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shopping_list.append(
                 f'{name} - {amount} ' f'{measurement_unit} \n'
             )
+        return shopping_list
+
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated],
+    )
+    def download_shopping_cart(self, request):
+        user = request.user
+        shopping_list = self.generate_list_for_shopping(user)
         response = HttpResponse(shopping_list, 'Content-Type: text/plain')
         response['Content-Disposition'] = 'attachment; filename="shoplist.txt"'
         return response
