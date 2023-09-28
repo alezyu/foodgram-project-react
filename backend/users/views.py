@@ -94,22 +94,22 @@ class SubscribeListViewSet(
         return self.request.user.subscriber.all()
 
 
-class ChangePasswordView(generics.CreateAPIView):
-    serializer_class = ChangePasswordSerializer
-    permission_classes = [permissions.IsAuthenticated, ]
+# class ChangePasswordView(generics.CreateAPIView):
+#     serializer_class = ChangePasswordSerializer
+#     permission_classes = [permissions.IsAuthenticated, ]
 
-    @transaction.atomic()
-    def create(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+#     @transaction.atomic()
+#     def create(self, request):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
 
-        new_password = serializer.validated_data['new_password']
-        user = request.user
+#         new_password = serializer.validated_data['new_password']
+#         user = request.user
 
-        user.set_password(new_password)
-        user.save()
+#         user.set_password(new_password)
+#         user.save()
 
-        return Response(
-            {'detail': 'Пароль изменен.'},
-            status=status.HTTP_204_NO_CONTENT,
-        )
+#         return Response(
+#             {'detail': 'Пароль изменен.'},
+#             status=status.HTTP_204_NO_CONTENT,
+#         )
