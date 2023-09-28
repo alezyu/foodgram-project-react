@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueTogetherValidator, ValidationError
 from drf_extra_fields.fields import Base64ImageField
 
@@ -293,15 +293,22 @@ class SubscribeToUserSerializer(serializers.ModelSerializer):
         model = Subscribe
         fields = (
             'user',
-            'author'
+            'author',
         )
 
     def validate(self, data):
+        author = self.instance
+        user = self.context.get('request').user
+        if author == user:
+            raise serializers.ValidationError(
+                detail='Нельзя подписаться на самого себя',
+                code=status.HTTP_400_BAD_REQUEST
+            )
         request = self.context.get('request')
         author_id = data['author'].id
         subscribe_is_exists = Subscribe.objects.filter(
             user=request.user,
-            author__id=author_id
+            author__id=author_id,
         ).exists()
 
         if request.method == 'POST':
@@ -315,3 +322,4 @@ class SubscribeToUserSerializer(serializers.ModelSerializer):
                 )
 
         return data
+

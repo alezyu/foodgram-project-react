@@ -1,15 +1,11 @@
-from django import forms
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.models import Group
-from django.core.exceptions import ValidationError
 
-from .models import CustomUser
+from .models import CustomUser, Subscribe
 
 
 @admin.register(CustomUser)
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'email',
@@ -17,32 +13,28 @@ class UserAdmin(BaseUserAdmin):
         'first_name',
         'last_name',
         'is_staff',
+        'is_active',
     )
-    list_filter = ('is_staff', 'email', 'username')
-    fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        ('Personal info', {'fields': ('email', 'first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_staff',)}),
+    list_filter = (
+        'is_staff',
+        'email',
+        'username',
     )
-    add_fieldsets = (
-        (
-            None,
-            {
-                'classes': ('wide',),
-                'fields': (
-                    'email',
-                    'username',
-                    'first_name',
-                    'last_name',
-                    'password',
-                    'repeat_password',
-                ),
-            },
-        ),
-    )
-    search_fields = ('email',)
-    ordering = ('email',)
+    search_fields = ('email', )
+    ordering = ('email', )
     filter_horizontal = ()
+
+
+@admin.register(Subscribe)
+class SubscribeAdmin(admin.ModelAdmin):
+    model = Subscribe
+    list_display = (
+        'id',
+        'user',
+        'author',
+    )
+    list_filter = ('user', 'author', )
+    search_fields = ('user', 'author', )
 
 
 admin.site.unregister(Group)

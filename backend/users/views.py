@@ -16,7 +16,6 @@ from rest_framework.response import Response
 from djoser.views import UserViewSet
 from .models import Subscribe
 from .serializers import (
-    ChangePasswordSerializer,
     UserSerializer,
 )
 from api.serializers import (
@@ -92,24 +91,3 @@ class SubscribeListViewSet(
 
     def get_queryset(self):
         return self.request.user.subscriber.all()
-
-
-# class ChangePasswordView(generics.CreateAPIView):
-#     serializer_class = ChangePasswordSerializer
-#     permission_classes = [permissions.IsAuthenticated, ]
-
-#     @transaction.atomic()
-#     def create(self, request):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         new_password = serializer.validated_data['new_password']
-#         user = request.user
-
-#         user.set_password(new_password)
-#         user.save()
-
-#         return Response(
-#             {'detail': 'Пароль изменен.'},
-#             status=status.HTTP_204_NO_CONTENT,
-#         )
