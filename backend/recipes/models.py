@@ -7,7 +7,12 @@ from django.core.validators import (
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .constants import COLOR_LENGTH, MEASUREMENT_LENGTH, NAME_LENGTH, SLUG_LENGTH
+from .constants import (
+    COLOR_LENGTH,
+    MEASUREMENT_LENGTH,
+    NAME_LENGTH,
+    SLUG_LENGTH,
+)
 from .validators import validate_hex
 
 

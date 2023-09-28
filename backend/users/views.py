@@ -17,9 +17,11 @@ from djoser.views import UserViewSet
 from .models import Subscribe
 from .serializers import (
     ChangePasswordSerializer,
+    UserSerializer,
+)
+from api.serializers import (
     SubscribersSerializer,
     SubscribeToUserSerializer,
-    UserSerializer,
 )
 
 
