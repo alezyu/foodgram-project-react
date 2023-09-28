@@ -110,15 +110,11 @@ class SubscribeToRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscribersSerializer(UserSerializer):
-    email = serializers.EmailField(source='author.email')
-    id = serializers.IntegerField(source='author.id')
-    username = serializers.CharField(source='author.username')
-    first_name = serializers.CharField(source='author.first_name')
-    last_name = serializers.CharField(source='author.last_name')
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
+        model = User
         fields = (
             'email',
             'id',

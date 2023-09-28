@@ -16,13 +16,13 @@ class UserAdmin(BaseUserAdmin):
         'username',
         'first_name',
         'last_name',
-        'is_admin',
+        'is_staff',
     )
-    list_filter = ('is_admin', 'email', 'username')
+    list_filter = ('is_staff', 'email', 'username')
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('email', 'first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_admin',)}),
+        ('Permissions', {'fields': ('is_staff',)}),
     )
     add_fieldsets = (
         (
