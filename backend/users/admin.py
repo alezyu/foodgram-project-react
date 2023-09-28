@@ -9,7 +9,7 @@ from .models import CustomUser
 
 
 @admin.register(CustomUser)
-class MyUserAdmin(BaseUserAdmin):
+class UserAdmin(BaseUserAdmin):
     list_display = (
         'id',
         'email',

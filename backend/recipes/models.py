@@ -206,7 +206,6 @@ class Favourites(BaseFavour):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        ordering = ('-pub_date', )
         constraints = [
             models.UniqueConstraint(
                 fields=(
@@ -225,7 +224,6 @@ class ShoppingCart(BaseFavour):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        ordering = ('-pub_date', )
 
     def __str__(self):
         return (
