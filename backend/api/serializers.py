@@ -297,13 +297,6 @@ class SubscribeToUserSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        author = self.instance
-        user = self.context.get('request').user
-        if author == user:
-            raise serializers.ValidationError(
-                detail='Нельзя подписаться на самого себя',
-                code=status.HTTP_400_BAD_REQUEST
-            )
         request = self.context.get('request')
         author_id = data['author'].id
         subscribe_is_exists = Subscribe.objects.filter(
