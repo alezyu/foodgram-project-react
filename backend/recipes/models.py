@@ -1,10 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
     validate_image_file_extension,
     validate_slug,
 )
-from django.contrib.auth import get_user_model
 from django.db import models
 
 from .constants import (
@@ -14,7 +14,6 @@ from .constants import (
     SLUG_LENGTH,
 )
 from .validators import validate_hex
-
 
 User = get_user_model()
 
