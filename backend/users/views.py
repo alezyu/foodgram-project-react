@@ -17,13 +17,13 @@ from rest_framework.response import Response
 from api.serializers import SubscribersSerializer, SubscribeToUserSerializer
 
 from .models import Subscribe
-from .serializers import UserSerializer
+from .serializers import CustomUserSerializer
 
 User = get_user_model()
 
 
 class CurrentUserView(generics.RetrieveAPIView):
-    serializer_class = UserSerializer
+    serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated, ]
 
     def get_object(self):
@@ -32,7 +32,7 @@ class CurrentUserView(generics.RetrieveAPIView):
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
     pagination_class = LimitOffsetPagination
 
