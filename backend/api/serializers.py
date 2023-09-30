@@ -1,6 +1,6 @@
+from drf_extra_fields.fields import Base64ImageField
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, ValidationError
 
@@ -177,7 +177,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class FavouriteSerializer(serializers.ModelSerializer): 
+class FavouriteSerializer(serializers.ModelSerializer):
     recipe = serializers.PrimaryKeyRelatedField(queryset=Recipes.objects.all())
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
@@ -315,4 +315,3 @@ class SubscribeToUserSerializer(serializers.ModelSerializer):
                 )
 
         return data
-
