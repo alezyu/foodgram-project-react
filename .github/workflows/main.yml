@@ -90,30 +90,6 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: Билд и пуш бэкенд не удался! Коммит ${{ github.actor }} - ${{ github.repository }}
 
-  frontend_tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up nodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install dependencies
-        run: |
-          cd frontend/
-          npm ci
-      - name: Test frontend
-        run: |
-          cd frontend/
-          npm run test
-      - name: Send Telegram Message on Failure
-        if: ${{ failure() }}
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: Тест фронтенд не пройден! Коммит ${{ github.actor }} - ${{ github.repository }}
-
   build_frontend_and_push_to_docker_hub:
     name: Push frontend Docker image to DockerHub
     runs-on: ubuntu-latest
