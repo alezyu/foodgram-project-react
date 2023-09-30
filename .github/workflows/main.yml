@@ -5,7 +5,6 @@ on:
       - master
 
 jobs:
- # test
   send_message_about_push:
     runs-on: ubuntu-latest
     steps:
