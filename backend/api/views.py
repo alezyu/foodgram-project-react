@@ -5,7 +5,6 @@ from django_filters import rest_framework as filters
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (
-    AllowAny,
     IsAuthenticated,
     IsAuthenticatedOrReadOnly
 )
@@ -24,7 +23,6 @@ from recipes.models import (
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .serializers import (
-    CustomRecipeSerializer,
     FavouriteSerializer,
     IngredientSerializer,
     RecipeSerializer,

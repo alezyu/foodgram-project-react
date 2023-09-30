@@ -14,7 +14,7 @@ from recipes.models import (
     User
 )
 from users.models import Subscribe
-from users.serializers import UserSerializer
+from users.serializers import CustomUserSerializer
 
 
 class FollowerRecipeSerializer(serializers.ModelSerializer):
@@ -253,11 +253,11 @@ class SubscribeToRecipeSerializer(serializers.ModelSerializer):
         )
 
 
-class SubscribersSerializer(UserSerializer):
+class SubscribersSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
-    class Meta(UserSerializer.Meta):
+    class Meta(CustomUserSerializer.Meta):
         model = User
         fields = (
             'email',
