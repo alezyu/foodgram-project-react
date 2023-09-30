@@ -86,7 +86,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['POST'],
         permission_classes=[IsAuthenticated],
     )
-
     def favourite(self, request, pk):
         recipe = get_object_or_404(Recipes, id=pk)
         data = {
@@ -100,7 +99,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
     @action(
         detail=True,
