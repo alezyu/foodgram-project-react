@@ -2,23 +2,19 @@ from django.db.models import Exists, OuterRef, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAuthenticatedOrReadOnly
-)
-from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet
-
 from recipes.models import (
     Favourites,
     Ingredients,
     RecipeIngredients,
     Recipes,
     ShoppingCart,
-    Tags
+    Tags,
 )
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
@@ -27,7 +23,7 @@ from .serializers import (
     IngredientSerializer,
     RecipeSerializer,
     ShoppingCartSerializer,
-    TagSerializer
+    TagSerializer,
 )
 
 
