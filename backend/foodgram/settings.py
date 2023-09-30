@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'bad-idea-please-ignore')
 
 DEBUG = os.getenv('DEBUG', 'False')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1 localhost kikoku.ru').split(' ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1 localhost kokiku.ru').split(' ')
 
 
 INSTALLED_APPS = [
