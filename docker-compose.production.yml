@@ -14,18 +14,14 @@ services:
       - pg_data:/var/lib/postgresql/data/
 
   backend:
-    image: puristaako/foodgram_backend
-    env_file:
-      - ../.env
-    restart: always
+    image: puristaako/foodgram_backend:latest
+    env_file: .env
     volumes:
-      - static:/app/static/
-      - media:/app/media/
-    ports:
-      - '8000:8000'
+      - static_production:/backend_static
+      - media_production:/app/media
     depends_on:
-      - db:
-          condition: service_healthy
+      db:
+        condition: service_healthy
 
   frontend:
     image: puristaako/foodgram_frontend
