@@ -1,0 +1,47 @@
+version: '3.3'
+services:
+  db:
+    image: postgres:13
+    env_file:
+      - ../.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 2s
+      retries: 2
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+  backend:
+    image: puristaako/foodgram_backend:latest
+    env_file:
+      - ../.env
+    restart: always
+    volumes:
+      - static:/app/static/
+      - media:/app/media/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db:
+          condition: service_healthy
+
+  frontend:
+    image: puristaako/foodgram_frontend:latest
+    volumes:
+      - ../frontend/:/app/result_build/
+  nginx:
+    image: nginx:1.19.3
+    ports:
+      - "9000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+      - static:/var/html/static/
+      - media:/var/html/media/
+
+volumes:
+  pg_data:
+  static:
+  media:
