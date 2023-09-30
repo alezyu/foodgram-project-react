@@ -1,6 +1,9 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator, ValidationError
+
 from recipes.models import (
     Favourites,
     Ingredients,
@@ -8,10 +11,8 @@ from recipes.models import (
     Recipes,
     ShoppingCart,
     Tags,
-    User,
+    User
 )
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, ValidationError
 from users.models import Subscribe
 from users.serializers import CustomUserSerializer
 
