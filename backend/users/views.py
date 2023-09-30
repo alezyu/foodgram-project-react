@@ -1,7 +1,3 @@
-from api.serializers import (
-    SubscribersSerializer,
-    SubscribeToUserSerializer,
-)
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
@@ -11,17 +7,17 @@ from rest_framework import (
     mixins,
     permissions,
     status,
-    viewsets,
+    viewsets
 )
 from rest_framework.authentication import get_user_model
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
+from api.serializers import SubscribersSerializer, SubscribeToUserSerializer
+
 from .models import Subscribe
-from .serializers import (
-    UserSerializer,
-)
+from .serializers import UserSerializer
 
 User = get_user_model()
 

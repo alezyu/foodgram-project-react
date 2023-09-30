@@ -3,7 +3,7 @@ from django.core.validators import (
     MaxValueValidator,
     MinValueValidator,
     validate_image_file_extension,
-    validate_slug,
+    validate_slug
 )
 from django.db import models
 
@@ -11,7 +11,7 @@ from .constants import (
     COLOR_LENGTH,
     MEASUREMENT_LENGTH,
     NAME_LENGTH,
-    SLUG_LENGTH,
+    SLUG_LENGTH
 )
 from .validators import validate_hex
 
