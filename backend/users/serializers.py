@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from .models import CustomUser, Subscribe
@@ -51,3 +52,40 @@ class CustomUserSerializer(UserSerializer):
         if not user.is_authenticated:
             return False
         return Subscribe.objects.filter(user=user, author=obj.id).exists()
+
+
+class UserSubscribeSerializer(CustomUserSerializer):
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.ReadOnlyField(source='author_recipes.count')
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+        )
+
+    def get_recipes(self, obj):
+        recipe_limit = 0
+        try:
+            recipe_limit = int(
+                self.context['request'].GET.get('recipes_limit', 0))
+        except ValueError:
+            pass
+        recipes = obj.author_recipes.all()
+        recipes = recipes[:recipe_limit] if recipe_limit else recipes
+        return [
+            {
+                'image': Base64ImageField().to_representation(recipe.image),
+                'name': recipe.name,
+                'id': recipe.id,
+                'cooking_time': recipe.cooking_time
+            }
+            for recipe in recipes
+        ]

@@ -185,11 +185,13 @@ class BaseFavour(models.Model):
         User,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
+        related_name='%(class)ss'
     )
     recipe = models.ForeignKey(
         Recipes,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
+        related_name='%(class)ss'
     )
 
     class Meta:

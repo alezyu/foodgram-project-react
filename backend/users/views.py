@@ -2,22 +2,18 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import (
-    filters,
     generics,
-    mixins,
     permissions,
-    status,
-    viewsets
+    status
 )
 from rest_framework.authentication import get_user_model
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 
-from api.serializers import SubscribersSerializer, SubscribeToUserSerializer
-
+from api.serializers import SubscribeToUserSerializer
 from .models import CustomUser, Subscribe
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer, UserSubscribeSerializer
 
 User = get_user_model()
 
@@ -56,7 +52,6 @@ class CustomUserViewSet(UserViewSet):
         serializer.save()
         return Response(
             serializer.data,
-            {'detail': 'Вы подписаны.'},
             status=status.HTTP_201_CREATED,
         )
 
@@ -74,15 +69,15 @@ class CustomUserViewSet(UserViewSet):
             status=status.HTTP_204_NO_CONTENT,
         )
 
-
-class SubscribeListViewSet(
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    serializer_class = SubscribersSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ['author__username', 'subscriber__username', ]
-    pagination_class = [LimitOffsetPagination, ]
-
-    def get_queryset(self):
-        return self.request.user.subscriber.all()
+    @action(
+        detail=False, methods=['GET'],
+        permission_classes=[permissions.IsAuthenticated],
+        serializer_class=UserSubscribeSerializer
+    )
+    def subscriptions(self, request):
+        subscriptions = User.objects.filter(
+            author__user=request.user
+        )
+        page = self.paginate_queryset(subscriptions)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
