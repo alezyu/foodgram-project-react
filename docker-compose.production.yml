@@ -25,9 +25,10 @@ services:
 
   frontend:
     image: puristaako/foodgram_frontend:latest
-    command: cp -r /app/build/. /staticfiles/
+    command: cp -r /app/result_build/. /staticfiles/
     volumes:
-      - ../frontend/:/app/staticfiles/
+      - static_foodgram:/staticfiles/
+  
   nginx:
     image: nginx:1.19.3
     ports:
