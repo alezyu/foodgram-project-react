@@ -36,6 +36,8 @@ services:
     volumes:
       - static_foodgram:/staticfiles/
       - media_foodgram:/media/
+    depends_on:
+      - backend
 
 volumes:
   pg_data:
