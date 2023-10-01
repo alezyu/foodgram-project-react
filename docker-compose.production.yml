@@ -39,5 +39,5 @@ services:
 
 volumes:
   pg_data:
-  static:
-  media:
+  static_foodgram:
+  media_foodgram:
