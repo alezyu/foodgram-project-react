@@ -138,7 +138,10 @@ class RecipeCreateSerializer(RecipeSerializer):
         ingredients_in_recipe = [
             RecipeIngredients(
                 recipe=recipe,
-                ingredient=get_object_or_404(Ingredients, pk=ingredient['id'].id),
+                ingredient=get_object_or_404(
+                    Ingredients,
+                    pk=ingredient['id'].id,
+                ),
                 amount=ingredient.get('amount'),
             )
             for ingredient in ingredients
