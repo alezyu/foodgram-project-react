@@ -38,7 +38,7 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=['POST', 'DELETE', ],
+        methods=['POST', ],
         permission_classes=[permissions.IsAuthenticated, ],
     )
     @transaction.atomic()
