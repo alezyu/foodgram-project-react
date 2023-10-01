@@ -16,7 +16,7 @@ from rest_framework.response import Response
 
 from api.serializers import SubscribersSerializer, SubscribeToUserSerializer
 
-from .models import Subscribe
+from .models import CustomUser, Subscribe
 from .serializers import CustomUserSerializer
 
 User = get_user_model()
@@ -31,14 +31,14 @@ class CurrentUserView(generics.RetrieveAPIView):
 
 
 class CustomUserViewSet(UserViewSet):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, ]
     pagination_class = LimitOffsetPagination
 
     @action(
         detail=True,
-        methods=['POST'],
+        methods=['POST', 'DELETE', ],
         permission_classes=[permissions.IsAuthenticated, ],
     )
     @transaction.atomic()

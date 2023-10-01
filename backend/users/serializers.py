@@ -18,6 +18,7 @@ class UserCreateCustomSerializer(UserCreateSerializer):
             'last_name',
             'password',
         )
+        password = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
         user = CustomUser.objects.create(
