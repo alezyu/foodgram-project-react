@@ -25,7 +25,7 @@ services:
 
   frontend:
     image: puristaako/foodgram_frontend:latest
-    command: cp -r /app/result_build/. /staticfiles/
+    command: cp -r /app/build/. /staticfiles/
     volumes:
       - static_foodgram:/staticfiles/
   
