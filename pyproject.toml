@@ -1,0 +1,38 @@
+[tool.ruff]
+line-length = 79
+show-fixes = True
+
+select = [
+  "E,",   # pycodestyle
+  "W",    # pycodestyle warnings
+  "F",   # pyflakes
+  "UP",  # pyupgrade
+  "N",   # pep8-naming
+  "COM",  # flake8-commas
+  "DJ",   # flake8-django
+  "ARG",  # flake8-unused-arguments
+]
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
