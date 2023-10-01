@@ -30,7 +30,7 @@ services:
       - static_foodgram:/staticfiles/
   
   nginx:
-    image: nginx:1.19.3
+    image: puristaako/foodgram_gateway:latest
     ports:
       - '9000:80'
     volumes:
