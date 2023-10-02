@@ -154,9 +154,9 @@ class RecipeIngredients(models.Model):
                 message='Количество ингредиента должно быть больше 0.',
             ),
             MaxValueValidator(
-                100,
+                9999,
                 message=(
-                    'Максимум 100 частей ингредиента.'
+                    'Максимум 9999.'
                 ),
             ),
         ]
