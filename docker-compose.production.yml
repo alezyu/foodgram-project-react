@@ -1,4 +1,3 @@
-#
 version: '3.3'
 services:
 
@@ -7,7 +6,7 @@ services:
     ports:
       - ${POSTGRES_PORT_IN}:${POSTGRES_PORT_OUT}
     env_file:
-      - ../.env
+      - .env
     healthcheck:
       test: [ 'CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s
@@ -19,7 +18,7 @@ services:
   backend:
     image: puristaako/foodgram_backend
     env_file:
-      - ../.env
+      - .env
     restart: always
     volumes:
       - static:/app/static/
@@ -27,8 +26,8 @@ services:
     ports:
       - ${BACKEND_PORT_IN}:${BACKEND_PORT_OUT}
     depends_on:
-      - db:
-          condition: service_healthy
+      db:
+        condition: service_healthy
 
   frontend:
     image: puristaako/foodgram_frontend
