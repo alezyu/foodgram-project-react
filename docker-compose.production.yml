@@ -4,7 +4,7 @@ services:
   db:
     image: postgres:13.10
     ports:
-      - ${POSTGRES_PORT_IN}:${POSTGRES_PORT_OUT}
+      - 5432:5432
     env_file:
       - .env
     healthcheck:
@@ -24,7 +24,7 @@ services:
       - static:/app/static/
       - media:/app/media/
     ports:
-      - ${BACKEND_PORT_IN}:${BACKEND_PORT_OUT}
+      - 9000:9000
     depends_on:
       db:
         condition: service_healthy
@@ -32,11 +32,11 @@ services:
   frontend:
     image: puristaako/foodgram_frontend
     volumes:
-      - ../frontend/:/app/result_build/
+      - static:/staticfiles/
   nginx:
     image: nginx:1.19.3
     ports:
-      - ${NGINX_PORT_IN}:${NGINX_PORT_OUT}
+      - 8000:80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
