@@ -1,50 +1,42 @@
 version: '3.3'
 services:
-
   db:
     image: postgres:13.10
-    ports:
-      - 5432:5432
     env_file:
-      - .env
+      - ../.env
     healthcheck:
-      test: [ 'CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 2s
       retries: 2
     volumes:
       - pg_data:/var/lib/postgresql/data/
-
   backend:
-    image: puristaako/foodgram_backend
-    env_file:
-      - .env
-    restart: always
+    image: puristaako/foodgram_backend:latest
+    env_file: .env
     volumes:
-      - static:/app/static/
-      - media:/app/media/
-    ports:
-      - 9000:9000
+      - static_foodgram:/backend_static
+      - media_foodgram:/app/media
     depends_on:
       db:
         condition: service_healthy
-
   frontend:
-    image: puristaako/foodgram_frontend
+    image: puristaako/foodgram_frontend:latest
+    command: cp -r /app/build/. /staticfiles/
     volumes:
-      - static:/staticfiles/
+      - static_foodgram:/staticfiles/
+  
   nginx:
-    image: nginx:1.19.3
+    image: puristaako/foodgram_gateway:latest
     ports:
-      - 8000:80
+      - '9000:80'
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/var/html/static/
-      - media:/var/html/media/
+      - static_foodgram:/staticfiles/
+      - media_foodgram:/media/
+    depends_on:
+      - backend
 
 volumes:
   pg_data:
-  static:
-  media:
+  static_foodgram:
+  media_foodgram:
