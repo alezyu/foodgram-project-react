@@ -176,7 +176,7 @@ class RecipeCreateSerializer(RecipeSerializer):
             'ingredients',
             'cooking_time',
         )
-    
+
     def to_representation(self, instance):
         return RecipeSerializer(
             instance,
