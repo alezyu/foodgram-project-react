@@ -176,6 +176,12 @@ class RecipeCreateSerializer(RecipeSerializer):
             'ingredients',
             'cooking_time',
         )
+    
+    def to_representation(self, instance):
+        return RecipeSerializer(
+            instance,
+            context=self.context,
+        ).data
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
