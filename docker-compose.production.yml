@@ -20,8 +20,6 @@ services:
     volumes:
       - static_foodgram:/backend_static
       - media_foodgram:/app/media
-    ports:
-      - 9000:9000
     depends_on:
       db:
         condition: service_healthy
