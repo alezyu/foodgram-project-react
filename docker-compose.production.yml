@@ -11,12 +11,17 @@ services:
       retries: 2
     volumes:
       - pg_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+      
   backend:
     image: puristaako/foodgram_backend:latest
     env_file: .env
     volumes:
       - static_foodgram:/backend_static
       - media_foodgram:/app/media
+    ports:
+      - 9000:9000
     depends_on:
       db:
         condition: service_healthy
