@@ -11,7 +11,7 @@ from recipes.models import (
     Recipes,
     ShoppingCart,
     Tags,
-    User
+    User,
 )
 from users.models import Subscribe
 from users.serializers import CustomUserSerializer
@@ -34,7 +34,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit',
-        read_only=True
+        read_only=True,
     )
 
     class Meta:
@@ -57,7 +57,7 @@ class CreateRecipeIngredientsSerializer(serializers.ModelSerializer):
     def validate_amount(self, amount):
         if amount < 1:
             raise serializers.ValidationError(
-                'Количество ингредиента не может быть меньше 1.'
+                'Количество ингредиента не может быть меньше 1.',
             )
         return amount
 
@@ -107,7 +107,7 @@ class RecipeCreateSerializer(RecipeSerializer):
     def validate_cooking_time(self, cooking_time):
         if cooking_time <= 0:
             raise ValidationError(
-                'Время приготовления должно быть больше 0.'
+                'Время приготовления должно быть больше 0.',
             )
         return cooking_time
 
@@ -117,19 +117,19 @@ class RecipeCreateSerializer(RecipeSerializer):
         for ingredient in ingredients:
             if int(ingredient.get('amount')) <= 0:
                 raise serializers.ValidationError(
-                    'В рецепте должны быть ингредиенты.'
+                    'В рецепте должны быть ингредиенты.',
                 )
             ingredient_id = ingredient.get('id')
             if ingredient_id in ingredients_temp_struct:
                 raise serializers.ValidationError(
-                    'Ингредиент можно добавить только один раз.'
+                    'Ингредиент можно добавить только один раз.',
                 )
             ingredients_temp_struct.add(ingredient_id)
 
         cooking_time = data.get('cooking_time')
         if cooking_time < 1:
             raise serializers.ValidationError(
-                'Время приготовления должно быть от 1 минуты.'
+                'Время приготовления должно быть от 1 минуты.',
             )
         return data
 
@@ -202,7 +202,7 @@ class FavouriteSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         return FollowerRecipeSerializer(
             instance.recipe,
-            context={'request': self.context.get('request')}
+            context={'request': self.context.get('request')},
         ).data
 
 
@@ -227,7 +227,7 @@ class ShoppingCartSerializer(FavouriteSerializer):
         ).exists()
         if request.method == 'POST' and purchase_exists:
             raise serializers.ValidationError(
-                'Рецепт уже есть в списке покупок.'
+                'Рецепт уже есть в списке покупок.',
             )
         return data
 
@@ -247,7 +247,7 @@ class CustomRecipeSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'image',
-            'cooking_time'
+            'cooking_time',
         )
 
 
@@ -322,11 +322,11 @@ class SubscribeToUserSerializer(serializers.ModelSerializer):
         if request.method == 'POST':
             if request.user.id == author_id:
                 raise serializers.ValidationError(
-                    'Нельзя подписаться на самого себя.'
+                    'Нельзя подписаться на самого себя.',
                 )
             if subscribe_is_exists:
                 raise serializers.ValidationError(
-                    'Вы уже подписаны.'
+                    'Вы уже подписаны.',
                 )
 
         return data

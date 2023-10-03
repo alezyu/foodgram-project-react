@@ -62,7 +62,7 @@ class Recipes(models.Model):
         blank=True,
         null=True,
         upload_to='recipes/images/',
-        validators=[validate_image_file_extension, ]
+        validators=[validate_image_file_extension],
     )
     text = models.TextField(
         verbose_name='Описание рецепта',
@@ -125,7 +125,7 @@ class Ingredients(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
-                name='unique_ingredient'
+                name='unique_ingredient',
             )
         ]
 
@@ -155,9 +155,7 @@ class RecipeIngredients(models.Model):
             ),
             MaxValueValidator(
                 9999,
-                message=(
-                    'Максимум 9999.'
-                ),
+                message='Максимум 9999.',
             ),
         ]
     )
