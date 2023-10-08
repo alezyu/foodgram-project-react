@@ -1,11 +1,12 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 
 from .models import CustomUser, Subscribe
 
 
 @admin.register(CustomUser)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(UserAdmin):
     list_display = (
         'id',
         'email',
@@ -33,8 +34,8 @@ class SubscribeAdmin(admin.ModelAdmin):
         'user',
         'author',
     )
-    list_filter = ('user', 'author', )
-    search_fields = ('user', 'author', )
+    list_filter = ('user', 'author')
+    search_fields = ('user', 'author')
 
 
 admin.site.unregister(Group)

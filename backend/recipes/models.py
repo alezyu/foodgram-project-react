@@ -28,13 +28,13 @@ class Tags(models.Model):
         verbose_name='Цвет в формате #Hex',
         max_length=COLOR_LENGTH,
         unique=True,
-        validators=[validate_hex, ]
+        validators=[validate_hex],
     )
     slug = models.SlugField(
         verbose_name='Уникальный слаг',
         max_length=SLUG_LENGTH,
         unique=True,
-        validators=[validate_slug, ]
+        validators=[validate_slug],
     )
 
     class Meta:
@@ -91,7 +91,7 @@ class Recipes(models.Model):
                     'Время приготовления должно быть меньше суток (1440 мин.)'
                 ),
             ),
-        ]
+        ],
     )
 
     pub_date = models.DateTimeField(
@@ -126,7 +126,7 @@ class Ingredients(models.Model):
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
                 name='unique_ingredient',
-            )
+            ),
         ]
 
     def __str__(self):
@@ -154,10 +154,12 @@ class RecipeIngredients(models.Model):
                 message='Количество ингредиента должно быть больше 0.',
             ),
             MaxValueValidator(
-                9999,
-                message='Максимум 9999.',
+                100,
+                message=(
+                    'Максимум 100 частей ингредиента.'
+                ),
             ),
-        ]
+        ],
     )
 
     class Meta:
@@ -183,49 +185,39 @@ class BaseFavour(models.Model):
         User,
         verbose_name='Пользователь',
         on_delete=models.CASCADE,
-        related_name='%(class)ss'
+        related_name='%(class)ss',
     )
     recipe = models.ForeignKey(
         Recipes,
         verbose_name='Рецепт',
         on_delete=models.CASCADE,
-        related_name='%(class)ss'
+        related_name='%(class)ss',
     )
 
     class Meta:
         abstract = True
-        ordering = ('-pub_date', )
         constraints = [
             models.UniqueConstraint(
                 fields=(
                     'user',
                     'recipe',
                 ),
-                name='user_recipe_unique',
+                name='%(class)ss_unique',
             )
         ]
 
 
 class Favourites(BaseFavour):
-    class Meta:
+    class Meta(BaseFavour.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        constraints = [
-            models.UniqueConstraint(
-                fields=(
-                    'user',
-                    'recipe',
-                ),
-                name='user_recipe_unique',
-            )
-        ]
 
     def __str__(self):
         return f'{self.recipe} нравится {self.user}.'
 
 
 class ShoppingCart(BaseFavour):
-    class Meta:
+    class Meta(BaseFavour.Meta):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
 
