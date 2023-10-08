@@ -11,7 +11,7 @@ from .constants import (
     COLOR_LENGTH,
     MEASUREMENT_LENGTH,
     NAME_LENGTH,
-    SLUG_LENGTH
+    SLUG_LENGTH,
 )
 from .validators import validate_hex
 
@@ -72,6 +72,8 @@ class Recipes(models.Model):
         through='RecipeIngredients',
         through_fields=('recipe', 'ingredient'),
         verbose_name='Список ингредиентов',
+        blank=False,
+        null=False,
     )
     tags = models.ManyToManyField(
         Tags,
