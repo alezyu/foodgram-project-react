@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.forms.models import BaseInlineFormSet
+from django.forms import ValidationError
 
 from .models import Favourites, Ingredients, Recipes, ShoppingCart, Tags
 
@@ -10,8 +12,19 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ('name',)
 
 
+class InlineFormset(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        all_forms_deleted = all(
+            form.cleaned_data.get('DELETE') for form in self.forms
+        )
+        if all_forms_deleted:
+            raise ValidationError('Нельзя удалить все ингредиенты')
+
+
 class RecipeIngredientInline(admin.TabularInline):
     model = Recipes.ingredients.through
+    formset = InlineFormset
     extra = 1
     min_num = 1
 
