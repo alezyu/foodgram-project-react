@@ -8,8 +8,8 @@ from .models import Favourites, Ingredients, Recipes, ShoppingCart, Tags
 @admin.register(Ingredients)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'measurement_unit')
-    search_fields = ('^name',)
-    list_filter = ('name',)
+    search_fields = ('^name')
+    list_filter = ('name')
 
 
 class InlineFormset(BaseInlineFormSet):
@@ -19,7 +19,7 @@ class InlineFormset(BaseInlineFormSet):
             form.cleaned_data.get('DELETE') for form in self.forms
         )
         if all_forms_deleted:
-            raise ValidationError('Нельзя удалить все ингредиенты')
+            raise ValidationError('Нельзя удалять все ингредиенты.')
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -36,9 +36,9 @@ class RecipeTagsInline(admin.TabularInline):
 
 @admin.register(Recipes)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'favourite', )
+    list_display = ('name', 'author', 'favourite')
     list_filter = ('name', 'tags', 'author')
-    inlines = (RecipeIngredientInline, RecipeTagsInline, )
+    inlines = (RecipeIngredientInline, RecipeTagsInline)
 
     def favourite(self, obj):
         counter = Favourites.objects.filter(recipe=obj).count()
@@ -48,16 +48,16 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'color', 'slug')
-    search_fields = ('^name', )
+    search_fields = ('^name')
 
 
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe',)
-    search_fields = ('^user__username', )
+    list_display = ('user', 'recipe')
+    search_fields = ('^user__username')
 
 
 @admin.register(Favourites)
 class FavouritesAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe', )
-    search_fields = ('^user__username', )
+    list_display = ('user', 'recipe')
+    search_fields = ('^user__username')
