@@ -2,7 +2,6 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import (
-    generics,
     permissions,
     status
 )
@@ -18,7 +17,7 @@ from .serializers import CustomUserSerializer, UserSubscribeSerializer
 User = get_user_model()
 
 
-class CurrentUserView(generics.RetrieveAPIView):
+class CurrentUserView(UserViewSet):
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated, ]
 
