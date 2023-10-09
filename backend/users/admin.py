@@ -1,12 +1,12 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as CustomUserAdmin
 from django.contrib.auth.models import Group
 
 from .models import CustomUser, Subscribe
 
 
 @admin.register(CustomUser)
-class UserAdmin(UserAdmin):
+class UserAdmin(CustomUserAdmin):
     list_display = (
         'id',
         'email',
