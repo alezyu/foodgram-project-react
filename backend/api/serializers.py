@@ -230,7 +230,11 @@ class ShoppingCartSerializer(FavouriteSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredients
-        fields = ('id', 'name', 'measurement_unit',)
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+        )
 
 
 class CustomRecipeSerializer(serializers.ModelSerializer):
