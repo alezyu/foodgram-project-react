@@ -21,7 +21,7 @@ from recipes.models import (
     Tags, User,
 )
 from users.models import CustomUser, Subscribe
-from .filters import RecipeFilter, IngredientFilter
+from .filters import RecipeFilter, IngredientsFilter
 from .pagination import CustomPagination
 from .serializers import (
     FavouriteSerializer,
@@ -44,7 +44,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredients.objects.all()
     serializer_class = IngredientSerializer
     search_fields = ('^name',)
-    filter_backends = (IngredientFilter,)
+    filter_backends = (IngredientsFilter,)
     pagination_class = None
     permission_classes = [IsAuthenticatedOrReadOnly, ]
 
