@@ -141,7 +141,7 @@ class RecipeCreateSerializer(RecipeSerializer):
                 recipe=recipe,
                 ingredient=get_object_or_404(
                     Ingredients,
-                    pk=ingredient['id'].id,
+                    pk=ingredient['id'].id
                 ),
                 amount=ingredient.get('amount'),
             )
