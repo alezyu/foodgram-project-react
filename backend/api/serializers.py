@@ -17,7 +17,7 @@ from users.models import CustomUser, Subscribe
 
 User = get_user_model()
 
-
+# сериализатор создания неоправданно перегружен, штатный прекрасно справляется
 class UserCreateCustomSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
