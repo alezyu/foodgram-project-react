@@ -1,0 +1,61 @@
+version: '3.7'
+services:
+  db:
+    container_name: db_foodgram
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    image: postgres:13-alpine
+    volumes:
+      - db_a:/var/lib/postgresql/data
+    env_file:
+      - .env
+    command: -p ${POSTGRES_PORT}
+
+  backend:
+    container_name: backend_foodgram
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    restart: always
+
+    volumes:
+      - ../backend:/backend
+      - staticfiles:/backend/static/
+      - media:/backend/media/
+    depends_on:
+      - db
+
+  frontend:
+    container_name: frontend_foodgram
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:1.19.3
+    container_name: nginx_foodgram
+    restart: unless-stopped
+    ports:
+      - ${NGINX_PORT}:${NGINX_PORT}
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/templates/default.conf.template
+      - staticfiles:/backend/static/
+      - media:/backend/media/
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+    depends_on:
+      - frontend
+
+
+volumes:
+  staticfiles:
+  media:
+  db_a:
