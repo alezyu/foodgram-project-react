@@ -223,3 +223,8 @@ class CustomUserViewSet(UserViewSet):
         page = self.paginate_queryset(subscriptions)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+    
+    def get_permissions(self):
+        if self.action == 'me':
+            return (IsAuthenticated(),)
+        return super().get_permissions()
