@@ -18,7 +18,8 @@ from recipes.models import (
     RecipeIngredients,
     Recipes,
     ShoppingCart,
-    Tags, User,
+    Tags,
+    User,
 )
 from users.models import CustomUser, Subscribe
 from .filters import RecipeFilter, IngredientsFilter
@@ -28,8 +29,11 @@ from .serializers import (
     IngredientSerializer,
     RecipeSerializer,
     ShoppingCartSerializer,
-    TagSerializer, RecipeCreateSerializer, UserSubscribeSerializer,
-    UserSerializer, SubscribeToUserSerializer,
+    TagSerializer,
+    RecipeCreateSerializer,
+    UserSubscribeSerializer,
+    UserSerializer,
+    SubscribeToUserSerializer,
 )
 
 
