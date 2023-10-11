@@ -98,7 +98,12 @@ class FollowerRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipes
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):
