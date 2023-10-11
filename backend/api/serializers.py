@@ -313,7 +313,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredients
         fields = (
             'id',
-            'name', 
+            'name',
             'measurement_unit',
         )
 
